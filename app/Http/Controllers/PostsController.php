@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostsController extends Controller
 {
@@ -59,7 +60,7 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['title'=>'required','content'=>'required|min:10']);
+        $request->validate(['title'=>'required','content'=>'required|min:1']);
         //
         // dd($request->all());
 
@@ -72,9 +73,9 @@ class PostsController extends Controller
         }
 
         $input = array_merge($request->all(), ["user_id" => Auth::user()->id]);
-        // 이미지가 있으면 .. $input 
+        // 이미지가 있으면 .. $input
         if($fileName) {
-            
+
             $input = array_merge($input, ["image" => $fileName ]);
         }
         // $input ["title"=> "suifwe", "content"=> "sfuiowejf", "user_id"=> 1]
@@ -82,7 +83,7 @@ class PostsController extends Controller
         // mass assignment
         // Eloquent model의 white list 인  $fillable 에 기술해야 한다.
         Post::create($input);
-        
+
         // Post::crate($input);
         // $post = new Post;
         // $post -> title = $input['title'];
@@ -114,9 +115,9 @@ class PostsController extends Controller
      */
     public function edit($id)
     {
-        // $id에 해당하는 포스트를 수정할 수 있는 
+        // $id에 해당하는 포스트를 수정할 수 있는
         // 페이지를 반환해주면 된다.
-        
+
         return view('bbs.edit', ['post'=>Post::find($id)]);
     }
 
@@ -129,15 +130,32 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, ['title'=>'required','content'=>'required|min:3']);
+        $this->validate($request, ['title'=>'required','content'=>'required|min:1']);
 
         $post = Post::find($id);
         // $post->title = $request->input['title'];
-        // $post->title = $request->title;
-        // $post->content = $request->content;
-
-        // $post->save();
+        $post->title = $request->title;
+        $post->content = $request->content;
+        // $request 객체 안에 이미지가 있다면 ...
+        // 이 이미지를 이 게시글의 이미지로 변경하겠다는 의미인 것이다.
+        if($request->image) {
+            // 이 이미지를 이 게시글의 이미지로 파일 시스템에
+            // 저장하고, DB에 반영하기 전에
+            // 기존 이미지가 있다면 ...
+            // 그 이미지를 파일 시스템에서 삭제해줘야 겠지요 ...
+            if($post->image) {
+                Storage::delete('public/images/'.$post->image);
+                //.은 문자열 합치는 것이야.
+            }
+            $fileName = time().'_'.$request->file('image')->getClientOriginalName();
+            $post->image = $fileName;
+            $request->image->storeAs('public/images/'.$fileName);
+        }
+        $post->save();
+        // update posts set title = $request->title, content -> $reuest->content, image = $fileName, // <= optional
         $post->update(['title' => $request->title, 'content' => $request->content]);
+
+        return redirect()->route('posts.show', ['post' => $post->id]);
     }
 
     /**
@@ -146,12 +164,29 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id) 
+    public function destroy(Request $request, $id)
     {
         // $id, REquest~ 로 하면 에러난다.
         //DI, Dependency Injection, 의존성 주입
         // dd($request);
-        Post::find($id)->delete();
+        $post = Post::find($id);
+
+        //게시글에 딸린 이미지가 있으면 파일시스템에도 삭제를 해야겠지요?\
+        if($post->image) {
+            Storage::delete('public/images/'.$post->image);
+        }
+
+        $post->delete();
+
         return redirect()->route('posts.index');
+    }
+
+    public function deleteImage($id) {
+        $post = Post::find($id);
+        Storage::delete('public/images', $post->image);
+        $post -> image = null;
+        $post->save();
+
+        return redirect()->route('posts.edit', ['post'=>$post->id]);
     }
 }

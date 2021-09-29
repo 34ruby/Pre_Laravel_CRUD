@@ -10,7 +10,7 @@
     </div>
     </x-slot>
     <div class ="m-4 p-4">
-        <form method="post" enctype="multipart/form-data" action="{{ route('posts.update', ['post'=>$post->id]) }}">
+        <form method="post" id ="editForm" enctype="multipart/form-data" action="{{ route('posts.update', ['post'=>$post->id]) }}">
             @method('patch')
             @csrf
     <div class="mb-3">
@@ -31,14 +31,15 @@
         </div>
         @enderror
       </div>
-      
+
 
 
       <div class="input-group mb-3">
 
         @if($post->image)
         <img class="w-20 h-20 rounded-full card-img-top" src="{{ '/storage/images/'.$post->image }}" alt="my post image" width="200" height="200">
-        @else 
+        <button onclick="return deleteImage()" class="btn btn-danger mt-5">이미지 삭제하기</button>
+        @else
             <span>NULL</span>
         @endif
         <label for="file">File</label>
@@ -49,6 +50,16 @@
         <button type="submit" class="btn btn-primary" >업로드<button>
       </div>
     </form>
+    <script>
+        function deleteImage() {
+            // alert('Hi');
+            editForm = document.getElementById('editForm');
+            editForm._method = 'delete';
+            editForm.action = '/posts/images/' + '{{ $post->id }}' ;
+            editForm.submit();
+            return false;
+        }
+    </script>
     </div>
 
 </x-app-layout>

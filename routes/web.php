@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::resource('/posts', PostsController::class)
     ->middleware(['auth']);
 
+Route::delete('/posts/images/{id}', [PostsController::class, "deleteImage"])->middleware(['auth']);
+
 // Route::get('/posts', [PostsController::class, "index"])
 //    ->name('posts.index')
 // Route::Post('/posts', [PostsController::class, "store"])
