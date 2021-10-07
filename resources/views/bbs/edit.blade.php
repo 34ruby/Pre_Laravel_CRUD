@@ -1,65 +1,64 @@
 <x-app-layout>
-    <x-slot name="header" >
+    <x-slot name="header">
         <div class="flex justify-between">
-       <h2 class="font-semibolt text-xl">
-        {{__('글쓰기 폼')}}
-       </h2>
-       <button onclick=location.href="{{route('posts.show', ['post'=>$post->id])}}" type="button" class="btn btn-info hover:bg-blue-700 font-bold text-white">
-           돌아가기
-        </button>
-    </div>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('글수정 폼') }}
+            </h2>
+            <button onclick=location.href="{{ route('posts.show', ['post'=>$post->id]) }}" type="button" class="btn btn-info font-bold hover:bg-blue-700 text-white">
+                상세보기
+            </button>
+        </div>
     </x-slot>
-    <div class ="m-4 p-4">
-        <form method="post" id ="editForm" enctype="multipart/form-data" action="{{ route('posts.update', ['post'=>$post->id]) }}">
+    <div class="m-4 p-4">
+        <form id="editForm" class="row g-3" action="{{ route('posts.update', ['post'=>$post->id])}}"method="post" enctype="multipart/form-data">
             @method('patch')
             @csrf
-    <div class="mb-3">
-        <label for="title" class="form-label">제목</label>
-        <input value="{{ $post->title }}"type="title" name="title" class="form-control" id="title">
-        @error('title')
-        <div class ="text-red-500">
-            <span>{{$message}}</span>
-        </div>
-        @enderror
-      </div>
-      <div class="mb-3">
-        <label for="content" class="form-label">내용 </label>
-        <textarea class="form-control" name="content" id="content" rows="3">{{ $post->content }}</textarea>
-        @error('content')
-        <div class ="text-red-500">
-            <span>{{$message}}</span>
-        </div>
-        @enderror
-      </div>
+            <div class="col-12 m-2">
+                <label for="title" class="form-label">제목</label>
+                <input type="text" name="title" class="form-control" id="title"
+                            value="{{ $post->title }}">
+                @error('title')
+                <div class="text-red-800">
+                    <span>{{ $message }}</span>
+                </div>
+                @enderror
+            </div>
+            <div class="col-12">
+                <label for="inputAddress2" class="form-label">글 내용</label>
+                <textarea class="form-control" name="content" id="content" rows="3" >{{ $post->content }}</textarea>
+                @error('content')
+                <div class="text-red-800">
+                    <span>{{ $message }}</span>
+                </div>
+                @enderror
+            </div>
+            <div class="col-12 m-2">
+                @if($post->image)
+                <div class="flex items-center">
+                    <img class="w-20 h-20 rounded-full" src="{{'/storage/images/'.$post->image}}"
+                        class="card-img-top" alt="my post image">
+                        <button onClick="return deleteImage()" class="btn btn-danger h-10 mx-2 my-2">이미지 삭제</button>
+                    </div>
 
-
-
-      <div class="input-group mb-3">
-
-        @if($post->image)
-        <img class="w-20 h-20 rounded-full card-img-top" src="{{ '/storage/images/'.$post->image }}" alt="my post image" width="200" height="200">
-        <button onclick="return deleteImage()" class="btn btn-danger mt-5">이미지 삭제하기</button>
-        @else
-            <span>NULL</span>
-        @endif
-        <label for="file">File</label>
-        <input type="file" image="image" class="form-control" id="image" name="image"value="{{ old('file') }}">
-      </div>
-
-      <div class="mb-3">
-        <button type="submit" class="btn btn-primary" >업로드<button>
-      </div>
-    </form>
-    <script>
-        function deleteImage() {
-            // alert('Hi');
-            editForm = document.getElementById('editForm');
-            editForm._method = 'delete';
-            editForm.action = '/posts/images/' + '{{ $post->id }}' ;
-            editForm.submit();
-            return false;
-        }
-    </script>
+                @else
+                    <span>첨부 이미지 없음</span>
+                @endif
+                <label for="image" class="form-label">첨부 이미지</label>
+                <input type="file" name="image" class="form-control" id="image">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">글 저장</button>
+            </div>
+        </form>
+        <script>
+            function deleteImage() {
+                editForm = document.getElementById('editForm');
+                editForm.delete('_method');
+                editForm._method = 'delete';
+                editForm.action = '/posts/image/{{ $post->id }}';
+                editForm.submit();
+                return false;
+            }
+        </script>
     </div>
-
 </x-app-layout>
