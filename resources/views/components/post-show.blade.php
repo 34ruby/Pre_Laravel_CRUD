@@ -2,7 +2,7 @@
     <!-- It is quality rather than quantity that matters. - Lucius Annaeus Seneca -->
     <div class="card" style="width: 100%; margin:10px">
         @if($post->image)
-            <img src="{{'/storage/images/'.$post->image}}" class="card-img-top" alt="my post image">
+            <img src="{{'/storage/images/'.$post->image}}" class="card-img-top" style="width:30%; margin:10px" alt="my post image" >
         @else
             <span>첨부 이미지 없음</span>
         @endif
@@ -11,6 +11,7 @@
           <p class="card-text">
               {{ $post->content }}
           </p>
+          <div><like-button :post="{{$post}}" :loginuser="{{ auth()->user()->id }}"/></div>
         </div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">등록일: {{ $post->created_at->diffForHumans() }}</li>
@@ -28,18 +29,9 @@
             <button  type="submit">삭제하기</button>
           </form>
         </div>
+
       </div>
-
-      <script>
-        function confirmDelete(e) {
-          myform = document.getElementById('form');
-          flag = confirm('지울거야?');
-          if (flag) {
-            // 서브밋
-            myform.submit();
-          }
-          // e.preventDefault(); // form이 서버로 전달되는 것을 막아준다.
-
-        }
-      </script>
+        <div class="card mt-2 mb-5 ml-3 mr-3" style="width: 100%; margin:10px">
+            <comment-list :post="{{ $post }}" :loginuser="{{ auth()->user()->id }}" />
+        </div>
 </div>

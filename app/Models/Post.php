@@ -10,10 +10,10 @@ class Post extends Model
     use HasFactory; //trait
 
     protected $fillable = [
-        "title", 
-        "content", 
+        "title",
+        "content",
         "user_id",
-        "image", 
+        "image",
     ];
 
     public function writer() {
@@ -27,6 +27,11 @@ class Post extends Model
             from users u, posts p
             inner join on u.id = p.writer_id
         */
+    }
+
+    public function likes() {
+        return $this->belongsToMany(User::class);
+
     }
 
 }
