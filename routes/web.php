@@ -34,4 +34,9 @@ Route::post('/like/{post}', [LikesController::class, "store"])
 ->middleware(['auth'])->name('like.store');
 
 
+Route::get('/comment/index', [CommentController::class, "index"])->middleware(['auth']);
+
+Route::post('/comment/store', [CommentController::class, "store"])->middleware(['auth']);
+
+
 require __DIR__.'/auth.php';
