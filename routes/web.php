@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\LikesController;
 use App\Http\Controllers\PostsController;
 use Illuminate\Support\Facades\Route;
@@ -33,10 +34,24 @@ Route::get('/', function () {
 Route::post('/like/{post}', [LikesController::class, "store"])
 ->middleware(['auth'])->name('like.store');
 
+Route::get('/comments/{postId}', [CommentsController::class, "index"])->name('comments.index');
+// http::/localhost:8000/comments/3
+// 이 게시글에 해당하는 댓글을 주세요
 
+Route::patch('/comments/{commentId}', [CommentsController::class, "update"])->name('comments.index');
+// http::/localhost:8000/comments/3
+
+Route::delete('/comments/{commentId}', [CommentsController::class, "delete"])->name('comments.index');
+
+Route::post('/comments/{postId}', [CommentsController::class, 'store'])->name('comments.index');
+
+
+/*
 Route::get('/comment/index', [CommentController::class, "index"])->middleware(['auth']);
 
 Route::post('/comment/store', [CommentController::class, "store"])->middleware(['auth']);
 
+Route::delete('/comment/{id}', [CommentController::class, "deleteComment"])->middleware(['auth']);
+*/
 
 require __DIR__.'/auth.php';
