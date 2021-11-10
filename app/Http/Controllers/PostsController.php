@@ -127,9 +127,14 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request ,$id)
     {
         // $id에 해당하는 포스트를 수정할 수 있는 페이지를 반환해주면 된다.
+
+        $post = Post::find($id);
+        if ($request->user()->cannot('update', $post)) {
+            abort(403);
+        }
 
         return view('bbs.edit', ['post'=>Post::find($id)]);
 
@@ -171,6 +176,7 @@ class PostsController extends Controller
             $request->image->storeAs('public/images/', $fileName);
 
         }
+        $this->authorize('update', $post);
         $post->save();
 
         // update posts set time = $request->title,
@@ -204,7 +210,7 @@ class PostsController extends Controller
         }
 
         $post->delete();
-
+        $this->authorize('delete', $post);
         return redirect()->route('posts.index');
     }
 
