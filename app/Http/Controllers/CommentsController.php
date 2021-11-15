@@ -130,11 +130,21 @@ class CommentsController extends Controller
      */
     public function update(Request $request, $commentId)
     {
-        $request->validate(['comment' => 'required']);
+
+        $request->validate(['comment' => 'required|min:1']);
+        //update할 래코드를 먼저 찾고, 그 다음 update
+        //select * from comments where id = ?
         $comment = Comment::find($commentId);
-        $comment::update([
+        $this->authorize('update', $comment);
+        // update set comment = ? from comments where
+        // id = ?
+        // 첫번째 ? : $request->input('comment')
+        // 두번째 ? : $comment->id
+
+        $comment->update([
             'comment' => $request->input('comment'),
         ]);
+
 
         // update할 레코드를 먼저 찾고, 그 다음 update
         // selete * from comments where id = ?
@@ -159,7 +169,7 @@ class CommentsController extends Controller
         // return view('comment.show', ['comment'=>$comment]);
         // return view('comment.show', compact('comment'));
         // return view('comment.show')->with(['comment'=>$comment]);
-        // return '$comment';
+        return '$comment';
 
     }
 
@@ -169,7 +179,7 @@ class CommentsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($commentId)
+    public function destroy(Request $request, $commentId)
     {
         // comments 테이블에서 id가 $commentId인 레코드를 삭제.
         // 1. RAW query
@@ -179,8 +189,19 @@ class CommentsController extends Controller
 
         $comment = Comment::find($commentId);
 
-        $comment->delete();
+        // 삭제하기 전에 권한관리를 해줘야 한다.!!!
+        // CommentPolicy 를 적용한 권한관리를 해준다.
+        // 즉, 이 요청을 한 사용자가 이 댓글을 삭제할 수 있는지를 체크해야 한다.
+        // $this->authorize('delete', $comment);
+        if ($request->user()->can('delete', $comment)) {
+            $comment->delete();
+            return $comment;
+        } else {
+            abort(404);
+        }
 
-        return $comment;
-    }
+    //     $comment->delete();
+
+    //     return $comment;
+     }
 }

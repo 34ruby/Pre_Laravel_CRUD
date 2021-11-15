@@ -14,8 +14,8 @@
         <button @click="getComments"
             class="btn btn-default">댓글 불러오기</button>
 
-        <comment-item v-for="(comment, index) in comments.data"
-                :key="index" :comment="comment" :login_user_id="loginuser" />
+        <comment-item v-for="comment in comments.data"
+                :key="comment.id" :comment="comment" :login_user_id="loginuser" @deleted="getComments" />
         <!-- {{ comments.links }} -->
 
         <pagination @pageClicked="getPage($event)"
@@ -47,8 +47,10 @@ export default {
                     // console.log(response.data);
                     this.getComments();
                     this.newComment='';
+                    alert('작성완료!');
                 })
                 .catch(error=>{console.log(error)})
+
         },
         getPage(url) {
             console.log(url);
